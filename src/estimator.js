@@ -1,61 +1,56 @@
 const covid19ImpactEstimator = (data) => {
+  const {
+    reportedCases,
+    timeToElapse,
+    periodType,
+    totalHospitalBeds,
+    region
+  } = data;
   let factor;
   let period;
 
-  if (data.periodType === 'days') {
-    factor = Math.floor(data.timeToElapse / 3);
-    period = data.timeToElapse;
+  if (periodType === 'days') {
+    factor = Math.floor(timeToElapse / 3);
+    period = timeToElapse;
   } else if (periodType === 'weeks') {
-    factor = Math.floor((data.timeToElapse * 7) / 3);
-    period = data.timeToElapse * 7;
+    factor = Math.floor((timeToElapse * 7) / 3);
+    period = timeToElapse * 7;
   } else {
-    factor = Math.floor((data.timeToElapse * 30) / 3);
-    period = data.timeToElapse * 30;
+    factor = Math.floor((timeToElapse * 30) / 3);
+    period = timeToElapse * 30;
   }
 
   // Impact
-  const impactCurrentlyInfected = data.reportedCases * 10;
+  const impactCurrentlyInfected = reportedCases * 10;
 
   const impactInfectionsByRequestedTime = impactCurrentlyInfected * 2 ** factor;
 
   const casesByRequestedTime = impactInfectionsByRequestedTime * 0.15;
 
   const impactHospitalBedsByRequestedTime =
-    data.totalHospitalBeds * 0.35 - casesByRequestedTime;
+    totalHospitalBeds * 0.35 - casesByRequestedTime;
 
-  const impactCasesForICUByRequestedTime =
-    impactInfectionsByRequestedTime * 0.05;
+  const impactCasesForICUByRequestedTime = impactInfectionsByRequestedTime * 0.05;
 
-  const impactCasesForVentilatorsByRequestedTime =
-    impactInfectionsByRequestedTime * 0.02;
+  const impactCasesForVentilatorsByRequestedTime = impactInfectionsByRequestedTime * 0.02;
 
-  const impactDollarsInFlight =
-    impactInfectionsByRequestedTime *
-    data[region].avgDailyIncomePopulation *
-    data[region].avgDailyIncomeInUSD *
-    period;
+  const impactDollarsInFlight = impactInfectionsByRequestedTime * region.avgDailyIncomePopulation * region.avgDailyIncomeInUSD * period;
 
   //severe impact
-  const severeImpactCurrentlyInfected = data.reportedCases * 50;
-  const severeImpactInfectionsByRequestedTime =
-    severeImpactCurrentlyInfected * 2 ** factor;
+  const severeImpactCurrentlyInfected = reportedCases * 50;
+  const severeImpactInfectionsByRequestedTime =  severeImpactCurrentlyInfected * 2 ** factor;
 
-  const severeCasesByRequestedTime =
-    severeImpactInfectionsByRequestedTime * 0.15;
+  const severeCasesByRequestedTime = severeImpactInfectionsByRequestedTime * 0.15;
 
-  const severeHospitalBedsByRequestedTime =
-    data.totalHospitalBeds * 0.35 - severeCasesByRequestedTime;
+  const severeHospitalBedsByRequestedTime = totalHospitalBeds * 0.35 - severeCasesByRequestedTime;
 
-  const severeCasesForICUByRequestedTime =
-    severeImpactInfectionsByRequestedTime * 0.05;
+  const severeCasesForICUByRequestedTime = severeImpactInfectionsByRequestedTime * 0.05;
 
-  const severeCasesForVentilatorsByRequestedTime =
-    severeImpactInfectionsByRequestedTime * 0.02;
+  const severeCasesForVentilatorsByRequestedTime = severeImpactInfectionsByRequestedTime * 0.02;
 
-  const severeDollarsInFlight =
-    severeImpactInfectionsByRequestedTime *
-    data.region.avgDailyIncomePopulation *
-    data.region.avgDailyIncomeInUSD *
+  const severeDollarsInFlight = severeImpactInfectionsByRequestedTime *
+    region.avgDailyIncomePopulation *
+    region.avgDailyIncomeInUSD *
     period;
 
   const impact = {
